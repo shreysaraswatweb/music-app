@@ -1,20 +1,27 @@
 const musicModel = require('../models/music.models');
 const jwt = require('jsonwebtoken');
 const {uploadFile} = require('../services/storage.services');
+const albumModel = require('../models/album.models');
 
 async function createMusic(req,res){
 
 
-    const token = req. cookies.token;
+    // const token = req. cookies.token;
 
-    try{
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // if(!token ){
+    //     return res.status(401).json ({
+    //         message:"Unauthorised"
+    //     })
+    // }
 
-        if(decoded.role !== 'artist'){
-            return res.status(403).json({
-                message: "You don't have permission to create music"
-            })
-        }
+    // try{
+    //     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    //     if(decoded.role !== 'artist'){
+    //         return res.status(403).json({
+    //             message: "You don't have permission to create music"
+    //         })
+    //     }
    
 
     const { title } = req.body;
@@ -26,7 +33,7 @@ async function createMusic(req,res){
     const music = await musicModel.create({
         uri: result.url,
         title,
-        artist: decoded.id
+        artist: req.user.id
     })
 
     res.status(201).json({
@@ -38,13 +45,55 @@ async function createMusic(req,res){
             artist: music.artist
         }
     })
-     }
-    catch(err){
-        console.error(err);
-        return res.status(401).json({
-            message: "Unauthorized"
-        })
-    }
+    //  }
+    // catch(err){
+    //     console.error(err);
+    //     return res.status(401).json({
+    //         message: "Unauthorized"
+    //     })
+    // }
 }
 
-module.exports = {createMusic};
+async function createAlbum(req,res){
+    // const token = req.cookies.token;
+
+    // if(!token ){
+    //     return res.status(401).json ({
+    //         message:"Unauthorised"
+    //     })
+    // }
+
+    // try{
+    //     const decoded = jwt.verify(token, process.env.JWT_SECRET)  
+    //     if (decoded.role !== 'artist'){
+    //         return res.status(403).json({
+    //             message: "You don't have permission to add music to album"
+    //         })
+    //     }
+        
+        const {title, musics} = req.body;
+        const album = await albumModel.create({
+            title,
+            artist: req.user.id,
+            musics: musics,
+        })
+
+        res.status(201).json({
+            message: "Music added to album successfully",
+            album:{
+                id: album._id,
+                title: album.title,
+                artist: album.artist,
+                musics: album.musics
+            }
+        })
+    // }
+    // catch(err){
+    //     console.error(err);
+    //     return res.status(401).json({
+    //         message: "Unauthorized"
+    //     })
+    // }
+}
+
+module.exports = {createMusic, createAlbum};
