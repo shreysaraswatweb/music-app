@@ -22,6 +22,6 @@ const userSchema = new mongoose.Schema({
     }
 })
 
-const userModel = mongoose.model("user", userSchema); 
+const userModel = mongoose.model("user", userSchema);  //"user": Its a collection name in Database.
 
 module.exports = userModel;
